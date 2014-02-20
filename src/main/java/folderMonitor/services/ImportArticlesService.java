@@ -12,6 +12,7 @@ import com.google.common.collect.ImmutableMap;
 
 import folderMonitor.dao.ArticleRepository;
 import folderMonitor.dao.Dao;
+import folderMonitor.dao.OrderRepository;
 import folderMonitor.domain.Article;
 import folderMonitor.domain.Order;
 import folderMonitor.domain.OrderEntry;
@@ -29,6 +30,9 @@ public class ImportArticlesService {
 
 	@Autowired
 	protected ArticleRepository articleRepository;
+
+	@Autowired
+	protected OrderRepository orderRepository;
 
 	@SuppressWarnings("unchecked")
 	@Transactional
@@ -92,7 +96,7 @@ public class ImportArticlesService {
 		for (OrderEntry oe : oes) {
 			Order order = oe.getOrder();
 			orderService.updateTotal(order);
-			dao.merge(order);
+			orderRepository.save(order);
 		}
 
 	}

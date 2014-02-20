@@ -95,13 +95,13 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
-                <version>1.2.1</version>
                 <configuration>
                     <mainClass>folderMonitor.App</mainClass>
                 </configuration>
             </plugin>
         </plugins>
     </build>
+
 
     <!-- Allow access to Spring milestones and snapshots -->
     <!-- (you don't need this if you are using anything after 1.0.0.RELEASE) -->
@@ -131,5 +131,6 @@
             <url>http://repo.spring.io/milestone</url>
         </pluginRepository>
     </pluginRepositories>
+     
 
 </project>

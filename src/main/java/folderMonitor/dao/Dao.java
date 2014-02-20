@@ -25,13 +25,6 @@ public class Dao extends CrudOperations {
 
 	static Logger logger = LoggerFactory.getLogger(Dao.class);
 
-	// public static void main(String[] args) {
-	// ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("SpringConfig.xml");
-	// Dao dao = (Dao) context.getBean("folderMonitorDao");
-	// Article a = dao.find(Article.class, 2);
-	// System.out.println("a.getCode()=" + a.getCode());
-	// }
-
 	@Transactional(readOnly = false)
 	public <T> T find(Class<T> entityClass, Object primaryKey) {
 		return entityManager.find(entityClass, primaryKey);

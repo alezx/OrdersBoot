@@ -11,34 +11,34 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.collect.ImmutableMap;
 
+import folderMonitor.dao.ArticleRepository;
 import folderMonitor.dao.Dao;
 import folderMonitor.domain.Article;
 import folderMonitor.domain.Order;
 import folderMonitor.domain.OrderEntry;
-import folderMonitor.processor.ProcessorThread;
 
 @Component(value = "orderService")
 public class OrderService {
-	
+
 	static Logger logger = LoggerFactory.getLogger(OrderService.class);
-	
+
 	@Autowired
 	@Qualifier("folderMonitorDao")
 	private Dao dao;
-	
-	
-	public OrderEntry getOrderEntry(Order o, String articleCode, long quantity){
-		Article a = getArticle(articleCode);
-		return new OrderEntry(a, quantity,o);
-	}
-	
 
-	public Order getOrder(String code, String customer){ 
+	@Autowired
+	protected ArticleRepository articleRepository;
+
+	public OrderEntry getOrderEntry(Order o, String articleCode, long quantity) {
+		Article a = getArticle(articleCode);
+		return new OrderEntry(a, quantity, o);
+	}
+
+	public Order getOrder(String code, String customer) {
 		Order o;
-		try{
-			o = dao.findByNamedQuery(Order.class, "Order.findByCodeAndCustomer", ImmutableMap.<String,Object>of("code", code,"customer",customer));
-		}
-		catch(javax.persistence.NoResultException nre){
+		try {
+			o = dao.findByNamedQuery(Order.class, "Order.findByCodeAndCustomer", ImmutableMap.<String, Object> of("code", code, "customer", customer));
+		} catch (javax.persistence.NoResultException nre) {
 			o = new Order();
 			o.setCode(code);
 			o.setCustomer(customer);
@@ -47,32 +47,29 @@ public class OrderService {
 		}
 		return o;
 	}
-	
-	public Article getArticle(String code){
-		return dao.findByNamedQuery(Article.class, "Article.findByCode", ImmutableMap.<String,Object>of("code", code));
+
+	public Article getArticle(String code) {
+		return dao.findByNamedQuery(Article.class, "Article.findByCode", ImmutableMap.<String, Object> of("code", code));
 	}
-	
-	
+
 	/**
-	 * - decrement the requested quanities
-	 * - decrement the total 
-	 * - deletes the orderentries
+	 * - decrement the requested quanities - decrement the total - deletes the orderentries
 	 * 
 	 */
 
 	@Transactional
 	public void cleanOrderEntries(Order o) {
 		logger.info("updating order {}", o);
-		
-		if(o.getOrderEntryes()!=null){
-			for(OrderEntry oe : o.getOrderEntryes()){
+
+		if (o.getOrderEntryes() != null) {
+			for (OrderEntry oe : o.getOrderEntryes()) {
 				Article a = oe.getArticle();
-				logger.info("decrementing requested quantity - {} for article {}", new Object[]{oe.getQuantity(), a});
+				logger.info("decrementing requested quantity - {} for article {}", new Object[] { oe.getQuantity(), a });
 				long rq = a.getRequestedQuantity();
-				a.setRequestedQuantity(rq-oe.getQuantity());
-				dao.merge(a);
+				a.setRequestedQuantity(rq - oe.getQuantity());
+				articleRepository.save(a);
 				logger.info("article update {}", a);
-				//o.setTotal(o.getTotal()-a.getPrice()*oe.getQuantity()); should be the same as o.setTotal(0)
+				// o.setTotal(o.getTotal()-a.getPrice()*oe.getQuantity()); should be the same as o.setTotal(0)
 				dao.remove(oe, oe.getId());
 			}
 			o.setTotal(0);
@@ -80,14 +77,14 @@ public class OrderService {
 		}
 	}
 
-	public void updateTotal(Order o){
+	public void updateTotal(Order o) {
 		o.setTotal(0);
-		if(o.getOrderEntryes()!=null){
-			for(OrderEntry oe : o.getOrderEntryes()){
+		if (o.getOrderEntryes() != null) {
+			for (OrderEntry oe : o.getOrderEntryes()) {
 				Article a = oe.getArticle();
-				o.setTotal(o.getTotal()+a.getPrice()*oe.getQuantity());
+				o.setTotal(o.getTotal() + a.getPrice() * oe.getQuantity());
 			}
 		}
 	}
-	
+
 }

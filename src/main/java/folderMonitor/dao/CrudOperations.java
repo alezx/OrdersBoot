@@ -25,16 +25,6 @@ public class CrudOperations {
 	// this.jpaDialect = jpaDialect;
 	// }
 
-	@Transactional(readOnly = false)
-	public void save(Object o) {
-		entityManager.persist(o);
-	}
-
-	// @Transactional(value = "txManager", readOnly = false)
-	public void merge(Object o) {
-		entityManager.merge(o);
-	}
-
 	// @Transactional(value = "txManager", readOnly = false)
 	public void remove(Object o) {
 		entityManager.remove(o);
