@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Context antiJARLocking="true" path="/Orders">
+  <!-- 
+  <Resource 
+	auth="Container"
+	characterEncoding="UTF-8"
+	driverClassName="com.mysql.jdbc.Driver"
+	maxActive="100" maxIdle="30" maxWait="120000" minEvictableIdleTimeMillis="240000"
+	name="jdbc/orderdb"
+	password="folderMonitor"
+	removeAbandoned="true" testOnBorrow="false" testWhileIdle="true" 
+	timeBetweenEvictionRunsMillis="40000"
+	type="javax.sql.DataSource" 
+	url="jdbc:mysql://localhost:3306/orderdb?zeroDateTimeBehavior=convertToNull" 
+	useUnicode="yes" 
+	username="folderMonitor" 
+	validationQuery="SELECT 1"/>
+	-->
+</Context>

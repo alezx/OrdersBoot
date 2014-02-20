@@ -17,42 +17,38 @@ import folderMonitor.reader.ReaderFactory;
 import folderMonitor.services.ImportArticlesService;
 
 @Component(value = "processorThread")
-public class ProcessorThread implements Runnable{
-	
+public class ProcessorThread implements Runnable {
+
 	static Logger logger = LoggerFactory.getLogger(ProcessorThread.class);
 
 	private String folderPath;
-	
+
 	@Autowired
 	@Qualifier("readerFactory")
-	private ReaderFactory readerFactory;	
-	
+	private ReaderFactory readerFactory;
+
 	@Autowired
 	@Qualifier("processorService")
 	private ProcessorService processorService;
-	
+
 	@Autowired
 	@Qualifier("importArticleService")
 	protected ImportArticlesService importArticleService;
-	
+
 	public String getFolderPath() {
 		return folderPath;
 	}
-
-
 
 	public void setFolderPath(String folderPath) {
 		this.folderPath = folderPath;
 	}
 
-
-
 	public void run() {
-		
+
 		File folder = new File(folderPath);
-		if(folder.isDirectory()){
+		if (folder.isDirectory()) {
 			File[] files = folder.listFiles(new MyFilter());
-			if(files!=null){
+			if (files != null) {
 				processFiles(files);
 			}
 		}
@@ -65,36 +61,34 @@ public class ProcessorThread implements Runnable{
 	}
 
 	private void processFile(File file) {
-		try{
+		try {
 			Reader reader = readerFactory.getReader(file.getName());
 			Object object = reader.read(file);
-			if(object instanceof Order){
+			if (object instanceof Order) {
 				Order order = (Order) object;
 				processorService.process(order);
-			}else if (Collection.class.isAssignableFrom( object.getClass()) ){
+			} else if (Collection.class.isAssignableFrom(object.getClass())) {
 				Collection collection = (Collection) object;
 				Object first = collection.iterator().next();
-				if (first instanceof Article){
+				if (first instanceof Article) {
 					importArticleService.saveOnDB((Collection<Article>) collection);
 				}
 			}
-			
-		}catch(Throwable e){
-			logger.error("ERROR",e);
-		}
-		finally{
+
+		} catch (Throwable e) {
+			logger.error("ERROR", e);
+		} finally {
 			processorService.renameFile(file);
 		}
 	}
-	
-	
-	static class MyFilter implements FileFilter{
+
+	static class MyFilter implements FileFilter {
 
 		@Override
 		public boolean accept(File pathname) {
-			return !pathname.getName().startsWith("_");
+			return !pathname.getName().startsWith("_") && !pathname.getName().endsWith("DS_Store");
 		}
-		
+
 	}
 
 }
