@@ -22,13 +22,16 @@ import folderMonitor.dao.Dao;
 import folderMonitor.domain.Article;
 import folderMonitor.domain.OrderEntry;
 import folderMonitor.services.ParameterService;
-import folderMonitor.utils.JacksonObjectMapperFactoryStatic;
+import folderMonitor.utils.JacksonObjectMapperFactory;
 
 @RestController
 @RequestMapping(value = "article")
 public class ArticleController {
 
 	static Logger logger = LoggerFactory.getLogger(ArticleController.class);
+
+	@Autowired
+	private JacksonObjectMapperFactory jacksonObjectMapperFactory;
 
 	@Autowired
 	@Qualifier("folderMonitorDao")
@@ -61,7 +64,7 @@ public class ArticleController {
 
 		List<Map<String, Object>> list = Article.toMapList(articles);
 
-		return JacksonObjectMapperFactoryStatic.getObject().writeValueAsString(ImmutableMap.of("success", true, "articles", list, "total", total));
+		return jacksonObjectMapperFactory.getObject().writeValueAsString(ImmutableMap.of("success", true, "articles", list, "total", total));
 	}
 
 	@RequestMapping(value = "/saveArticle")
@@ -73,7 +76,7 @@ public class ArticleController {
 		a.setAvailableonHand(a.getAvailableforSale() + a.getReservedStock());
 		articleRepository.save(a);
 
-		return JacksonObjectMapperFactoryStatic.getObject().writeValueAsString(ImmutableMap.of("success", true));
+		return jacksonObjectMapperFactory.getObject().writeValueAsString(ImmutableMap.of("success", true));
 	}
 
 	@RequestMapping(value = "/orderArticleList")
@@ -84,7 +87,7 @@ public class ArticleController {
 		List<OrderEntry> orderEntries = dao.findListBySqlQuery(OrderEntry.class, OrderEntry.QUERY_ALL_BY_ARTICLE, info, parameters);
 		int total = dao.findListBySqlQuery(OrderEntry.class, OrderEntry.QUERY_ALL_BY_ARTICLE, null, parameters).size();
 		List<Map<String, Object>> list = OrderEntry.toMapList(orderEntries);
-		return JacksonObjectMapperFactoryStatic.getObject().writeValueAsString(ImmutableMap.of("success", true, "orderArticles", list, "total", total));
+		return jacksonObjectMapperFactory.getObject().writeValueAsString(ImmutableMap.of("success", true, "orderArticles", list, "total", total));
 	}
 
 }

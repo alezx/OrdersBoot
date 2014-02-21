@@ -1,6 +1,7 @@
 package folderMonitor.services;
 
 import java.util.Date;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +14,7 @@ import com.google.common.collect.ImmutableMap;
 
 import folderMonitor.dao.ArticleRepository;
 import folderMonitor.dao.Dao;
+import folderMonitor.dao.OrderRepository;
 import folderMonitor.domain.Article;
 import folderMonitor.domain.Order;
 import folderMonitor.domain.OrderEntry;
@@ -28,6 +30,33 @@ public class OrderService {
 
 	@Autowired
 	protected ArticleRepository articleRepository;
+
+	@Autowired
+	protected OrderRepository orderRepository;
+
+	public void process(Order order) {
+		incrementRequested(order);
+		orderRepository.save(order);
+	}
+
+	@Transactional
+	private void incrementRequested(Order order) {
+
+		List<OrderEntry> orderEntryes = order.getOrderEntryes();
+		if (orderEntryes != null) {
+			for (OrderEntry oe : orderEntryes) {
+				Article a = oe.getArticle();
+				logger.info("incrementing requested quantity + {} for article {}", new Object[] { oe.getQuantity(), a });
+				long rq = a.getRequestedQuantity();
+				a.setRequestedQuantity(rq + oe.getQuantity());
+				order.setTotal(order.getTotal() + a.getPrice() * oe.getQuantity());
+				articleRepository.save(a);
+				logger.info("quantity decremented for {}", a);
+			}
+		}
+		order.setLastUpdate(new Date());
+
+	}
 
 	public OrderEntry getOrderEntry(Order o, String articleCode, long quantity) {
 		Article a = getArticle(articleCode);

@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <html>
 <head>
-	<title>Account Manager</title>
+	<title>++ Mogliettina ++</title>
 
 	
 	<link rel="stylesheet" type="text/css" href="ext-4/resources/css/ext-all-neptune.css">

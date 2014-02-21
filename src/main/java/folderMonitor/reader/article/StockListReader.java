@@ -1,36 +1,24 @@
 package folderMonitor.reader.article;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
-import org.apache.poi.hssf.usermodel.HSSFSheet;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.openxml4j.opc.OPCPackage;
-import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import folderMonitor.domain.Article;
-import folderMonitor.reader.Reader;
 import folderMonitor.reader.XlsxReader;
-import folderMonitor.services.ImportArticlesService;
 
 @Component(value = "stockListReader")
 public class StockListReader extends XlsxReader {
 
 	static Logger logger = LoggerFactory.getLogger(StockListReader.class);
-
 
 	@Value("${stocklist.articles.sheet.name}")
 	private String sheetName;
@@ -68,26 +56,6 @@ public class StockListReader extends XlsxReader {
 	@Value("${stocklist.articles.filter}")
 	private String filter;
 
-	@Override
-	public Object read(File f) throws Exception {
-
-		FileInputStream file = new FileInputStream(f);
-		OPCPackage pkg = OPCPackage.open(file);
-		try {
-
-			XSSFWorkbook workbook = new XSSFWorkbook(pkg);
-			Map<String, Article> articlesMap = retrieveArticles(workbook);
-
-			return articlesMap.values();
-
-		} catch (Exception e) {
-			logger.error("ERROR", e);
-			throw e;
-		} finally {
-			pkg.close(); // gracefully closes the underlying zip file
-		}
-	}
-
 	protected Map<String, Article> retrieveArticles(XSSFWorkbook workbook) throws Exception {
 		XSSFSheet sheet = workbook.getSheet(sheetName);
 		Iterator<Row> rowIterator = sheet.iterator();
@@ -106,7 +74,7 @@ public class StockListReader extends XlsxReader {
 				if (series.equals(filter)) {
 					started = true;
 					setValues(article, row);
-					code = row.getCell(getAlphabetPos(idColumn)).getStringCellValue();
+					code = getStringValue(row, idColumn);
 					map.put(code, article);
 				}
 			} catch (Exception e) {
@@ -120,21 +88,17 @@ public class StockListReader extends XlsxReader {
 	}
 
 	private void setValues(Article article, Row row) throws Exception {
-		article.setCode(row.getCell(getAlphabetPos(idColumn)).getStringCellValue());
-		article.setSeries(row.getCell(getAlphabetPos(seriesColumn)).getStringCellValue());
-		article.setTitle(row.getCell(getAlphabetPos(titleColumn)).getStringCellValue());
-		article.setFormat(row.getCell(getAlphabetPos(formatColumn)).getStringCellValue());
-		article.setInterior(row.getCell(getAlphabetPos(interiorColumn)).getStringCellValue());
+		article.setCode(getStringValue(row, idColumn));
+		article.setSeries(getStringValue(row, seriesColumn));
+		article.setTitle(getStringValue(row, titleColumn));
+		article.setFormat(getStringValue(row, formatColumn));
+		article.setInterior(getStringValue(row, interiorColumn));
 
-		article.setAvailableforSale((long) row.getCell(getAlphabetPos(availableforSaleColumn)).getNumericCellValue());
-		article.setReservationStatus(row.getCell(getAlphabetPos(reservationStatusColumn)).getStringCellValue());
-		article.setReservedStock((long) row.getCell(getAlphabetPos(reservedStockColumn)).getNumericCellValue());
-		article.setAvailableonHand((long) row.getCell(getAlphabetPos(availableonHandColumn)).getNumericCellValue());
-		article.setCaseQuantity((long) row.getCell(getAlphabetPos(caseColumn)).getNumericCellValue());
-	}
-
-	private int getAlphabetPos(String s) throws Exception {
-		return s.toLowerCase().charAt(0) - 'a';
+		article.setAvailableforSale(getLongValue(row, availableforSaleColumn));
+		article.setReservationStatus(getStringValue(row, reservationStatusColumn));
+		article.setReservedStock(getLongValue(row, reservedStockColumn));
+		article.setAvailableonHand(getLongValue(row, availableonHandColumn));
+		article.setCaseQuantity(getLongValue(row, caseColumn));
 	}
 
 	public String getSheetName() {

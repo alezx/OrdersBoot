@@ -3,22 +3,22 @@ package folderMonitor.processor;
 import java.io.File;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Collection;
 import java.util.Date;
-import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import folderMonitor.dao.ArticleRepository;
-import folderMonitor.dao.Dao;
-import folderMonitor.dao.OrderRepository;
 import folderMonitor.domain.Article;
 import folderMonitor.domain.Order;
-import folderMonitor.domain.OrderEntry;
+import folderMonitor.reader.Reader;
+import folderMonitor.reader.ReaderFactory;
+import folderMonitor.services.ImportArticlesService;
+import folderMonitor.services.OrderService;
 
 @Component(value = "processorService")
 public class ProcessorService {
@@ -34,37 +34,40 @@ public class ProcessorService {
 	};
 
 	@Autowired
-	protected OrderRepository orderRepository;
+	@Qualifier("orderService")
+	protected OrderService orderService;
 
 	@Autowired
 	protected ArticleRepository articleRepository;
 
 	@Autowired
-	@Qualifier("folderMonitorDao")
-	private Dao dao;
+	@Qualifier("readerFactory")
+	private ReaderFactory readerFactory;
 
-	public void process(Order order) {
-		incrementRequested(order);
-		orderRepository.save(order);
-	}
+	@Autowired
+	@Qualifier("importArticleService")
+	protected ImportArticlesService importArticleService;
 
-	@Transactional
-	private void incrementRequested(Order order) {
-
-		List<OrderEntry> orderEntryes = order.getOrderEntryes();
-		if (orderEntryes != null) {
-			for (OrderEntry oe : orderEntryes) {
-				Article a = oe.getArticle();
-				logger.info("incrementing requested quantity + {} for article {}", new Object[] { oe.getQuantity(), a });
-				long rq = a.getRequestedQuantity();
-				a.setRequestedQuantity(rq + oe.getQuantity());
-				order.setTotal(order.getTotal() + a.getPrice() * oe.getQuantity());
-				articleRepository.save(a);
-				logger.info("quantity decremented for {}", a);
+	void processFile(File file) {
+		try {
+			Reader reader = readerFactory.getReader(file.getName());
+			Object object = reader.read(file);
+			if (object instanceof Order) {
+				Order order = (Order) object;
+				orderService.process(order);
+			} else if (Collection.class.isAssignableFrom(object.getClass())) {
+				Collection collection = (Collection) object;
+				Object first = collection.iterator().next();
+				if (first instanceof Article) {
+					importArticleService.saveOnDB((Collection<Article>) collection);
+				}
 			}
-		}
-		order.setLastUpdate(new Date());
 
+		} catch (Throwable e) {
+			logger.error("ERROR", e);
+		} finally {
+			renameFile(file);
+		}
 	}
 
 	public void renameFile(File file) {

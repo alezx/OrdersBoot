@@ -12,41 +12,33 @@ import org.springframework.stereotype.Component;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
-
 @Component(value = "processor")
 public class Processor {
-	
+
 	@Autowired
 	private ApplicationContext applicationContext;
-	
+
 	@Value("${folder}")
-    private String folderPath;
-	
+	private String folderPath;
+
 	@Autowired
 	@Qualifier("processorThread")
-	private ProcessorThread processorThread;
-	
+	private PollerThread pollerThread;
+
 	private ScheduledExecutorService scheduler;
-	
-	
 
 	public void start() {
-		//ProcessorThread processorThread = new ProcessorThread(folderPath);
-		processorThread.setFolderPath(folderPath);
+		pollerThread.setFolderPath(folderPath);
 		scheduler = Executors.newSingleThreadScheduledExecutor(new ThreadFactoryBuilder().setNameFormat("ProcessorThread").build());
-		scheduler.scheduleWithFixedDelay(processorThread, 0, 5, TimeUnit.SECONDS);
+		scheduler.scheduleWithFixedDelay(pollerThread, 0, 5, TimeUnit.SECONDS);
 	}
-	
-	
-	
-	
+
 	public String getFolderPath() {
 		return folderPath;
 	}
-	
+
 	public void setFolderPath(String folderPath) {
 		this.folderPath = folderPath;
 	}
-	
 
 }

@@ -65,17 +65,13 @@ public class PriceListReader extends XlsxReader {
 
 	private void setValues(Article article, Row row) throws Exception {
 		article.setCode(getValue(row, idColumn));
-		article.setProductionQuantity((long) row.getCell(getAlphabetPos(quantityColumn)).getNumericCellValue());
+		article.setProductionQuantity(getLongValue(row, quantityColumn));
 		article.setPrice((float) row.getCell(getAlphabetPos(netPriceColumn)).getNumericCellValue());
 
 	}
 
 	private String getValue(Row row, String column) throws Exception {
 		return row.getCell(getAlphabetPos(column)).getStringCellValue();
-	}
-
-	private int getAlphabetPos(String s) throws Exception {
-		return s.toLowerCase().charAt(0) - 'a';
 	}
 
 	public void setSheetPosition(Integer sheetPosition) {

@@ -19,7 +19,7 @@ import org.springframework.stereotype.Component;
 import folderMonitor.dao.Dao;
 import folderMonitor.domain.Order;
 import folderMonitor.domain.OrderEntry;
-import folderMonitor.processor.ProcessorThread;
+import folderMonitor.processor.PollerThread;
 import folderMonitor.reader.Reader;
 
 @Component(value = "txtReader")
