@@ -11,9 +11,9 @@ Ext.define('Orders.view.article.OrderArticleList' ,{
 		this.store = Ext.create('Orders.store.OrderArticles');
 	
 		this.columns = [
-			{header: 'Order Code', dataIndex: 'ORDER_CODE', flex: 1},
-			{header: 'Sales Order', dataIndex: 'ORDER_SYSTEM_CODE', flex: 1},
-			{header: 'Quantity', dataIndex: 'QUANTITY', flex: 1}
+			{header: 'Order Code', dataIndex: 'orderCode', flex: 1, sortable: false},
+			//{header: 'Sales Order', dataIndex: 'ORDER_SYSTEM_CODE', flex: 1},
+			{header: 'Quantity', dataIndex: 'quantity', flex: 1}
 		];
 		
 		this.bbar = {

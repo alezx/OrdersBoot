@@ -9,27 +9,33 @@ Ext.define('Orders.view.article.List' ,{
 	viewConfig: {
 	    enableTextSelection: true
 	},
-	
 
 	initComponent: function() {
 	
 		this.features = [ this.getFilters() ];
 		
 		this.columns = [
-			{header: 'Code',  dataIndex: 'CODE',  flex: 1, filterable : true},
-			{header: 'Price', dataIndex: 'PRICE', flex: 1, filterable : true},
-			{header: 'Production', dataIndex: 'PRD_Q', flex: 1, filterable : true},
+			{header: 'Code',  dataIndex: 'code',  flex: 1, filterable : true},
+			{header: 'Price', dataIndex: 'price', flex: 1, filterable : true},
+			{header: 'Production', dataIndex: 'productionQuantity', flex: 1, filterable : true},
 			
-			{header: 'Requested', dataIndex: 'REQUESTED_Q', flex: 1, filterable : true},
 			
-			{header: 'Series',  dataIndex: 'SERIES', flex: 1, filterable : true},
-			{header: 'Title',  dataIndex: 'TITLE', flex: 1, filterable : true},
-			{header: 'Format',  dataIndex: 'FORMAT', flex: 1, filterable : true},
-			{header: 'Interior',  dataIndex: 'INTERIOR', flex: 1, filterable : true},
+			{header: 'Series',  dataIndex: 'series', flex: 1, filterable : true},
+			{header: 'Title',  dataIndex: 'title', flex: 1, filterable : true},
+			{header: 'Format',  dataIndex: 'format', flex: 1, filterable : true},
+			{header: 'Interior',  dataIndex: 'interior', flex: 1, filterable : true},
 			 
-			{header: 'Reserved',  dataIndex: 'RESERVEDSTOCK_Q', flex: 1, filterable : true},
-			{header: 'Available',  dataIndex: 'AVAILABLEFORSALE_Q', flex: 1, filterable : true},
-			{header: 'Res + Avail',  dataIndex: 'AVAILABLEONHAND_Q', flex: 1, filterable : true}
+			//{header: 'Reserved',  dataIndex: 'RESERVEDSTOCK_Q', flex: 1, filterable : true, hidden: true},
+			//{header: 'Available For Sale',  dataIndex: 'AVAILABLEFORSALE_Q', flex: 1, filterable : true, hidden: true},
+			//{header: 'Available H',  dataIndex: 'AVAILABLEONHAND_Q', flex: 1, filterable : true},
+			
+			{header: 'Warehouse', dataIndex: 'warehouseQuantity', flex: 1, filterable : true},
+			 {header: 'Requested', dataIndex: 'requestedQuantity', flex: 1, filterable : true}
+
+			// {header: 'Bal Prod', dataIndex: 'balanceProd', flex: 1, filterable : true},
+			// {header: 'Bal Prod Price', dataIndex: 'balanceProdPrice', flex: 1, filterable : true},
+			// {header: 'Bal Ware', dataIndex: 'balanceWarehouse', flex: 1, filterable : true},
+			// {header: 'Bal Ware Price', dataIndex: 'balanceWarehousePrice', flex: 1, filterable : true}
 		];
 		
 		this.bbar = {

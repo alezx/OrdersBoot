@@ -14,7 +14,7 @@ Ext.define('Orders.store.Articles', {
 		type: 'ajax',
 		api:{
 			read: 'article/articleList.do',
-			update: 'article/saveArticle.do',
+			update: 'article/saveArticle.do'
 		},
 		remoteSort: true,
 		reader: {

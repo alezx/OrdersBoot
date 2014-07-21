@@ -13,18 +13,13 @@ Ext.define('Orders.view.article.Edit', {
 				items: [
 					{
 						xtype: 'textfield',
-						name : 'PRD_Q',
-						fieldLabel: 'Production'
+						name : 'productionQuantity',
+						fieldLabel: 'Production Qty'
 					},
 					{
 						xtype: 'textfield',
-						name : 'RESERVEDSTOCK_Q',
-						fieldLabel: 'Reserved'
-					},
-					{
-						xtype: 'textfield',
-						name : 'AVAILABLEFORSALE_Q',
-						fieldLabel: 'Available'
+						name : 'warehouseQuantity',
+						fieldLabel: 'Warehouse Qty'
 					}
 				]
 			}

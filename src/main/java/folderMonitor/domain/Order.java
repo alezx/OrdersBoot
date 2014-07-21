@@ -1,13 +1,9 @@
 package folderMonitor.domain;
 
 import java.io.Serializable;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
@@ -21,85 +17,96 @@ import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Lists;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
-
-
-/**
- * 
- * @author porfirial
- */
 @Entity
 @Table(name = "orders")
 @NamedQueries({
 		@NamedQuery(name = "Order.findAll", query = "SELECT m FROM Order m"),
 		@NamedQuery(name = "Order.findById", query = "SELECT m FROM Order m WHERE m.id = :id"),
-		@NamedQuery(name = "Order.findByCode", query = "SELECT a FROM Order a WHERE a.code = :parameter"),
-		@NamedQuery(name = "Order.findByCodeAndCustomer", query = "SELECT a FROM Order a WHERE a.code = :code and a.customer = :customer")
-})
-public class Order implements Serializable, Mappable {
-	
-	public static final String QUERY_ALL = "select * from orders o where 1=1"; 
-	
+		@NamedQuery(name = "Order.findByCode", query = "SELECT a FROM Order a WHERE a.code = :parameter") })
+public class Order implements Serializable {
+
+	public static final String QUERY_ALL = "select * from orders o where 1=1";
+
 	public static String dateTimeFormat = "yyyy-MM-dd HH:mm:ss";
-	
+
 	private static final long serialVersionUID = 1L;
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Basic(optional = false)
-	@Column(name = "id")
+	@Column(name = "ID")
 	private Integer id;
 
 	@Basic(optional = false)
-	@Column(name = "code")
+	@Column(name = "CODE")
 	private String code;
-	
-	
-	@Basic(optional = false)
-	@Column(name = "system_code")
-	private String systemCode;
-	
-	@Basic(optional = false)
-	@Column(name = "customer")
-	private String customer;
-	
-	@Basic(optional = false)
-    @Column(name = "last_update")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date lastUpdate;
-	
-	@Basic(optional = false)
-    @Column(name = "first_insert")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date firstInsert;
 
-	@Column(name = "total")
+	// @Basic(optional = false)
+	// @Column(name = "SYSTEM_CODE")
+	// private String systemCode;
+
+	@Basic(optional = false)
+	@Column(name = "CUSTOMER")
+	private String customer;
+
+	@Basic(optional = false)
+	@Column(name = "CUSTOMER_CODE")
+	private String customerCode;
+
+	// @Basic(optional = false)
+	// @Column(name = "LAST_UPDATE")
+	// @Temporal(TemporalType.TIMESTAMP)
+	// private Date lastUpdate;
+	//
+	// @Basic(optional = false)
+	// @Column(name = "FIRST_INSERT")
+	// @Temporal(TemporalType.TIMESTAMP)
+	// private Date firstInsert;
+
+	@Column(name = "PERC_AVAILABLE_PROD")
+	private Float percAvailableProd;
+
+	@Column(name = "PERC_AVAILABLE_WARE")
+	private Float percAvailableWare;
+
+	@Column(name = "READY")
+	private String ready;
+
+	@Column(name = "TOTAL")
 	private float total;
-	
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "order", fetch=FetchType.EAGER)
-    private List<OrderEntry> orderEntryes;
-	
+
+	@Column(name = "PRIORITY", unique = true)
+	private Integer priority;
+
+	@OneToMany(cascade = CascadeType.ALL, mappedBy = "order", fetch = FetchType.EAGER, orphanRemoval = true)
+	private List<OrderEntry> orderEntryes;
+
+	@Column(name = "TWELVE_MONTHS")
+	private boolean twelveMonths;
+
+	@Column(name = "ORDER_DATE")
+	private Date orderDate;
+
 	public Order() {
 		super();
 	}
 
-	public Order(Integer id, String code, String customer, List<OrderEntry> orderEntryes) {
+	public Order(Integer id, String code, String customer,
+			List<OrderEntry> orderEntryes) {
 		super();
 		this.id = id;
 		this.code = code;
-		this.orderEntryes=orderEntryes;
-		this.customer=customer;
+		this.orderEntryes = orderEntryes;
+		this.customer = customer;
 	}
-	
-	public Order(String code,  String customer, List<OrderEntry> orderEntryes) {
+
+	public Order(String code, String customer, List<OrderEntry> orderEntryes) {
 		super();
 		this.code = code;
-		this.orderEntryes=orderEntryes;
-		this.customer=customer;
+		this.orderEntryes = orderEntryes;
+		this.customer = customer;
 	}
 
 	public Integer getId() {
@@ -126,6 +133,15 @@ public class Order implements Serializable, Mappable {
 		this.customer = customer;
 	}
 
+	public String getCustomerCode() {
+		return customerCode;
+	}
+
+	public void setCustomerCode(String customerCode) {
+		this.customerCode = customerCode;
+	}
+
+	@JsonIgnore
 	public List<OrderEntry> getOrderEntryes() {
 		return orderEntryes;
 	}
@@ -137,44 +153,68 @@ public class Order implements Serializable, Mappable {
 	public static long getSerialversionuid() {
 		return serialVersionUID;
 	}
-	
-	public Date getLastUpdate() {
-		return lastUpdate;
-	}
-
-	public void setLastUpdate(Date lastUpdate) {
-		this.lastUpdate = lastUpdate;
-	}
-
-	public Date getFirstInsert() {
-		return firstInsert;
-	}
-
-	public void setFirstInsert(Date firstInsert) {
-		this.firstInsert = firstInsert;
-	}
-
-	public String getSystemCode() {
-		return systemCode;
-	}
-
-	public void setSystemCode(String systemCode) {
-		this.systemCode = systemCode;
-	}
 
 	public float getTotal() {
 		return total;
+	}
+
+	public Float getPercAvailableProd() {
+		return percAvailableProd;
+	}
+
+	public void setPercAvailableProd(Float percAvailableProd) {
+		this.percAvailableProd = percAvailableProd;
+	}
+
+	public Float getPercAvailableWare() {
+		return percAvailableWare;
+	}
+
+	public void setPercAvailableWare(Float percAvailableWare) {
+		this.percAvailableWare = percAvailableWare;
+	}
+
+	public String getReady() {
+		return ready;
+	}
+
+	public void setReady(String ready) {
+		this.ready = ready;
 	}
 
 	public void setTotal(float total) {
 		this.total = total;
 	}
 
-	public void addOrderEntry(OrderEntry oe){
-		if (orderEntryes == null){
-			orderEntryes= new ArrayList<OrderEntry>();
+	public Integer getPriority() {
+		return priority;
+	}
+
+	public void setPriority(Integer priority) {
+		this.priority = priority;
+	}
+
+	public void addOrderEntry(OrderEntry oe) {
+		if (orderEntryes == null) {
+			orderEntryes = new ArrayList<OrderEntry>();
 		}
 		orderEntryes.add(oe);
+	}
+
+	public boolean isTwelveMonths() {
+		return twelveMonths;
+	}
+
+	public void setTwelveMonths(boolean twelveMonths) {
+		this.twelveMonths = twelveMonths;
+	}
+
+	public Date isOrderDate() {
+		return orderDate;
+	}
+
+	public void setOrderDate(Date orderDate) {
+		this.orderDate = orderDate;
 	}
 
 	@Override
@@ -197,50 +237,50 @@ public class Order implements Serializable, Mappable {
 		return true;
 	}
 
-
-	
-	@Override
-	public String toString() {
-		return "Order [id=" + id + ", code=" + code + ", systemCode=" + systemCode + ", customer=" + 
-				customer + ", lastUpdate=" + lastUpdate + ", firstInsert="
-				+ firstInsert + "]";
-	}
-
-	@Override
-	public Map<String, Object> toMap() {
-		Map<String, Object> map = new HashMap<String, Object>();
-		map.put("ID", getId());
-		map.put("CODE",getCode());
-		map.put("CUSTOMER",getCustomer());
-		map.put("LAST_UPDATE", getLastUpdate());
-		map.put("FIRST_INSERT", getFirstInsert());
-		map.put("SYSTEM_CODE", getSystemCode());
-		map.put("TOTAL", getTotal());
-		return map;
-	}
-	
-	public static Order fromMap(Map<String, Object> map) throws ParseException {
-		Order o = new Order();
-		o.setId((Integer)(map.get("ID")));
-		o.setCode((String)map.get("CODE"));
-		o.setCustomer((String)map.get("CUSTOMER"));
-		o.setSystemCode((String)map.get("SYSTEM_CODE"));
-		SimpleDateFormat sdf = new SimpleDateFormat(dateTimeFormat);
-		o.setLastUpdate(sdf.parse((String)map.get("LAST_UPDATE")));
-		o.setFirstInsert(sdf.parse((String)map.get("FIRST_INSERT")));
-		o.setTotal((Float.valueOf(map.get("TOTAL").toString())));
-		return o;
-	}
-	
-	public static List<Map<String, Object>> toMapList(List<Order> orders) {
-		List<Map<String, Object>> map = Lists.transform(orders, new Order.TransformToMap());
-		return map;
-	}
-	
-	public static class TransformToMap implements Function<Order, Map<String, Object>> {
-	    @Override
-	    public Map<String, Object> apply(Order o) {
-	        return o.toMap();
-	    }
-	}
+	// @Override
+	// public Map<String, Object> toMap() {
+	// Map<String, Object> map = new HashMap<String, Object>();
+	// map.put("ID", getId());
+	// map.put("CODE", getCode());
+	// map.put("CUSTOMER", getCustomer());
+	//
+	// map.put("PERC_AVAILABLE_PROD", getPercAvailableProd());
+	// map.put("PERC_AVAILABLE_WARE", getPercAvailableWare());
+	// map.put("READY", getReady());
+	//
+	// map.put("TOTAL", getTotal());
+	//
+	// map.put("PRIORITY", getPriority());
+	// return map;
+	// }
+	//
+	// public static Order fromMap(Map<String, Object> map) throws ParseException {
+	// Order o = new Order();
+	// o.setId((Integer) (map.get("ID")));
+	// o.setCode((String) map.get("CODE"));
+	// o.setCustomer((String) map.get("CUSTOMER"));
+	//
+	// SimpleDateFormat sdf = new SimpleDateFormat(dateTimeFormat);
+	//
+	// o.setPercAvailableProd((Float) map.get("PERC_AVAILABLE_PROD"));
+	// o.setPercAvailableWare((Float) map.get("PERC_AVAILABLE_WARE"));
+	// o.setReady((String) map.get("READY"));
+	//
+	// o.setTotal((Float.valueOf(map.get("TOTAL").toString())));
+	//
+	// o.setPriority((Integer) (map.get("PRIORITY")));
+	// return o;
+	// }
+	//
+	// public static List<Map<String, Object>> toMapList(List<Order> orders) {
+	// List<Map<String, Object>> map = Lists.transform(orders, new Order.TransformToMap());
+	// return map;
+	// }
+	//
+	// public static class TransformToMap implements Function<Order, Map<String, Object>> {
+	// @Override
+	// public Map<String, Object> apply(Order o) {
+	// return o.toMap();
+	// }
+	// }
 }

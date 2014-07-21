@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import com.google.common.base.CaseFormat;
 
 import folderMonitor.controllers.parameters.FilterEntry;
 import folderMonitor.controllers.parameters.Filters;
@@ -30,6 +31,9 @@ public class ParameterService {
 	}
 
 	public String getOperator(FilterEntry f) {
+		if (f.getType().equals("boolean")) {
+			return " = ";
+		}
 		if (f.getComparison() == null
 				|| f.getComparison().equalsIgnoreCase("eq")) {
 			return " like ";
@@ -43,9 +47,12 @@ public class ParameterService {
 
 	public String getSqlCondition(FilterEntry f) {
 		StringBuilder sb = new StringBuilder(" and ");
-		sb.append(f.getField());
+		String sqlField = CaseFormat.UPPER_CAMEL.to(
+				CaseFormat.LOWER_UNDERSCORE, f.getField());
+		sb.append(sqlField);
 		sb.append(getOperator(f));
-		sb.append(" :").append(f.getField()).append("_").append(f.getComparison());
+		sb.append(" :").append(f.getField()).append("_")
+				.append(f.getComparison());
 		return sb.toString();
 	}
 

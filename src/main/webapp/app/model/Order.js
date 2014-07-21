@@ -2,13 +2,16 @@ Ext.define('Orders.model.Order', {
 
 	extend: 'Ext.data.Model',
 	fields: [
-	         {name: 'ID', type: 'int'},
-	         'SYSTEM_CODE',
-	         'CODE',
-	         'CUSTOMER',
-	         {name: 'FIRST_INSERT', type: 'date', dateFormat: 'Y-m-d H:i:s'},
-	         {name: 'LAST_UPDATE', type: 'date', dateFormat: 'Y-m-d H:i:s'},
-	         {name: 'TOTAL', type: 'float'},
+	         {name: 'id', type: 'int'},
+	         'code',
+	         'customer',
+	         'customerCode',
+	         {name: 'total', type: 'float', useNull: true},
+	         {name: 'percAvailableProd', type: 'float', useNull: true},
+	         {name: 'percAvailableWare', type: 'float', useNull: true},
+	         'ready',
+	         'priority',
+	         {name: 'twelveMonths', type : 'boolean'}
 	]
 	
 });

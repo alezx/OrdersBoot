@@ -13,7 +13,7 @@ Ext.define('Orders.view.order.OrderEntryEdit', {
 				items: [
 					{
 						xtype: 'textfield',
-						name : 'NEW_QUANTITY',
+						name : 'newQuantity',
 						fieldLabel: 'New Quantity'
 					}
 				]

@@ -19,7 +19,7 @@ Ext.define('Orders.view.general.MainTabs' ,{
 	        },
 	    	items:[
 	    	   {xtype : 'orderslist', region: 'center'},
-	    	   {xtype : 'orderEntriesList', region: 'east', width: 200}
+	    	   {xtype : 'orderEntriesList', region: 'east', width: 500}
 	    	]
 	    }, {
 	    	xtype : 'articleslist'

@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.google.common.collect.ImmutableMap;
@@ -45,8 +44,7 @@ public class ArticleController {
 	protected ArticleRepository articleRepository;
 
 	@RequestMapping(value = "/articleList")
-	@ResponseBody
-	public String articleList(PagingInfo info) throws Exception {
+	public Map<String, Object> articleList(PagingInfo info) throws Exception {
 
 		String filter = info.getFilter();
 		String sqlQuery = Article.QUERY_ALL;
@@ -58,36 +56,49 @@ public class ArticleController {
 			queryParameters = filters.toMap();
 		}
 
-		List<Article> articles = dao.findListBySqlQuery(Article.class, sqlQuery, info, queryParameters);
+		List<Article> articles = dao.findListBySqlQuery(Article.class,
+				sqlQuery, info, queryParameters);
 
-		int total = dao.findListBySqlQuery(Article.class, sqlQuery, null, queryParameters).size();
+		int total = dao.findListBySqlQuery(Article.class, sqlQuery, null,
+				queryParameters).size();
 
-		List<Map<String, Object>> list = Article.toMapList(articles);
+		// List<Map<String, Object>> list = Article.toMapList(articles);
 
-		return jacksonObjectMapperFactory.getObject().writeValueAsString(ImmutableMap.of("success", true, "articles", list, "total", total));
+		// return jacksonObjectMapperFactory.getObject().writeValueAsString(ImmutableMap.of("success", true, "articles", articles, "total", total));
+
+		return ImmutableMap.of("success", true, "articles", articles, "total",
+				total);
 	}
 
 	@RequestMapping(value = "/saveArticle")
-	@ResponseBody
-	public String saveArticle(@RequestBody Map<String, Object> map) throws Exception {
+	public String saveArticle(@RequestBody Article article) throws Exception {
 
-		System.out.println(map);
-		Article a = Article.fromMap(map);
-		a.setAvailableonHand(a.getAvailableforSale() + a.getReservedStock());
-		articleRepository.save(a);
+		Article fromDb = articleRepository.findByCode(article.getCode());
 
-		return jacksonObjectMapperFactory.getObject().writeValueAsString(ImmutableMap.of("success", true));
+		fromDb.setProductionQuantity(article.getProductionQuantity());
+		fromDb.setWarehouseQuantity(article.getWarehouseQuantity());
+
+		articleRepository.save(fromDb);
+
+		return jacksonObjectMapperFactory.getObject().writeValueAsString(
+				ImmutableMap.of("success", true));
 	}
 
 	@RequestMapping(value = "/orderArticleList")
-	@ResponseBody
-	public String orderArticleList(PagingInfo info, int article) throws Exception {
+	public String orderArticleList(PagingInfo info, int article)
+			throws Exception {
 
-		ImmutableMap<String, Object> parameters = ImmutableMap.<String, Object> of("article", article);
-		List<OrderEntry> orderEntries = dao.findListBySqlQuery(OrderEntry.class, OrderEntry.QUERY_ALL_BY_ARTICLE, info, parameters);
-		int total = dao.findListBySqlQuery(OrderEntry.class, OrderEntry.QUERY_ALL_BY_ARTICLE, null, parameters).size();
-		List<Map<String, Object>> list = OrderEntry.toMapList(orderEntries);
-		return jacksonObjectMapperFactory.getObject().writeValueAsString(ImmutableMap.of("success", true, "orderArticles", list, "total", total));
+		ImmutableMap<String, Object> parameters = ImmutableMap
+				.<String, Object> of("article", article);
+		List<OrderEntry> orderEntries = dao.findListBySqlQuery(
+				OrderEntry.class, OrderEntry.QUERY_ALL_BY_ARTICLE, info,
+				parameters);
+		int total = dao.findListBySqlQuery(OrderEntry.class,
+				OrderEntry.QUERY_ALL_BY_ARTICLE, null, parameters).size();
+		// List<Map<String, Object>> list = OrderEntry.toMapList(orderEntries);
+		return jacksonObjectMapperFactory.getObject().writeValueAsString(
+				ImmutableMap.of("success", true, "orderArticles", orderEntries,
+						"total", total));
 	}
 
 }

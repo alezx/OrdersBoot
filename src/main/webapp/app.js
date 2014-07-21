@@ -1,7 +1,7 @@
 Ext.Loader.setConfig({
-    disableCaching: false
+	disableCaching: false
 });
-Ext.require(['Ext.ux.grid.FiltersFeature']);
+Ext.require(['Ext.ux.grid.FiltersFeature', 'Ext.window.MessageBox']);
 
 Ext.application({
 	requires: ['Ext.container.Viewport'],
@@ -9,19 +9,14 @@ Ext.application({
 
 	appFolder: 'app',
 
-	controllers: ['Generals'
-	              ,'Orders'
-	              ,'Articles'
-	              ],
+	controllers: ['Generals', 'Orders', 'Articles'],
 
 	launch: function() {
 		Ext.create('Ext.container.Viewport', {
 			layout: 'fit',
-			items: [
-				{
-					xtype : 'maintabs'
-				}
-			]
+			items: [{
+				xtype: 'maintabs'
+			}]
 		});
 	}
 });

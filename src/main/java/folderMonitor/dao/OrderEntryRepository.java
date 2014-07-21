@@ -6,6 +6,6 @@ import org.springframework.stereotype.Repository;
 import folderMonitor.domain.OrderEntry;
 
 @Repository
-public interface OrderEntryRepository extends CrudRepository<OrderEntry, String> {
+public interface OrderEntryRepository extends CrudRepository<OrderEntry, Integer> {
 
 }

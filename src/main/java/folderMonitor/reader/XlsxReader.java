@@ -2,6 +2,7 @@ package folderMonitor.reader;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.util.ArrayList;
 import java.util.Map;
 
 import org.apache.poi.openxml4j.opc.OPCPackage;
@@ -29,7 +30,7 @@ public abstract class XlsxReader implements Reader {
 			XSSFWorkbook workbook = new XSSFWorkbook(pkg);
 			Map<String, Article> articlesMap = retrieveArticles(workbook);
 
-			return articlesMap.values();
+			return new ArrayList<Article>(articlesMap.values());
 
 		} catch (Exception e) {
 			logger.error("ERROR", e);
@@ -42,16 +43,20 @@ public abstract class XlsxReader implements Reader {
 	protected abstract Map<String, Article> retrieveArticles(XSSFWorkbook workbook) throws Exception;
 
 	protected String getStringValue(Row row, String idColumn) throws Exception {
-		return row.getCell(getAlphabetPos(idColumn)).getStringCellValue();
+		return row.getCell(getAlphabetPos(idColumn)).toString();
 	}
 
-	protected long getLongValue(Row row, String column) throws Exception {
+	protected Long getLongValue(Row row, String column) throws Exception {
 		Long l = null;
 		Cell cell = row.getCell(getAlphabetPos(column));
 		try {
 			l = (long) cell.getNumericCellValue();
 		} catch (Exception e) {
-			l = Long.valueOf(cell.toString());
+			try {
+				l = Long.valueOf(cell.toString());
+			} catch (NumberFormatException nfe) {
+				logger.warn("Column: [{}]. Impossible to cast to long [{}]", column, cell.toString());
+			}
 		}
 		return l;
 	}

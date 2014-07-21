@@ -21,12 +21,16 @@
 			</pattern>
 		</encoder>
 	</appender>
-	<logger name="org.hibernate.type" level="ERROR" />
-  	<logger name="org.hibernate" level="ERROR" />
-
+	
+	<!--
+	<logger name="org.hibernate.type" level="TRACE" />
+  	<logger name="org.hibernate" level="INFO" />
+  	<logger name="org.hibernate.SQL" level="DEBUG" />
+  	-->
 
 	<root level="INFO">
 		<appender-ref ref="STDOUT" />
 		<appender-ref ref="FILE" />
 	</root>
+	
 </configuration>

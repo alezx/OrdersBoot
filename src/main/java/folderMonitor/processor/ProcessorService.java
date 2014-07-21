@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
+import ale.HandshakeToOrders.JsonOrder;
 import folderMonitor.dao.ArticleRepository;
 import folderMonitor.domain.Article;
 import folderMonitor.domain.Order;
@@ -53,13 +54,20 @@ public class ProcessorService {
 			Reader reader = readerFactory.getReader(file.getName());
 			Object object = reader.read(file);
 			if (object instanceof Order) {
-				Order order = (Order) object;
-				orderService.process(order);
+				throw new RuntimeException("not implemented");
+				// Order order = (Order) object;
+				// orderService.process(order);
 			} else if (Collection.class.isAssignableFrom(object.getClass())) {
 				Collection collection = (Collection) object;
 				Object first = collection.iterator().next();
 				if (first instanceof Article) {
-					importArticleService.saveOnDB((Collection<Article>) collection);
+					importArticleService
+							.addPaperlessArticle((Collection<Article>) collection);
+					importArticleService
+							.saveOnDB((Collection<Article>) collection);
+				} else if (first instanceof JsonOrder) {
+					orderService
+							.importOrders((Collection<JsonOrder>) collection);
 				}
 			}
 
@@ -73,11 +81,13 @@ public class ProcessorService {
 	public void renameFile(File file) {
 		String prepend = SDF.get().format(new Date());
 		String newName = "_" + prepend + "_" + file.getName();
-		File newParentDir = new File(file.getParent() + File.separator + "_processed");
+		File newParentDir = new File(file.getParent() + File.separator
+				+ "_processed");
 		if (!newParentDir.exists()) {
 			newParentDir.mkdirs();
 		}
-		File newFile = new File(newParentDir.getAbsolutePath() + File.separator + newName);
+		File newFile = new File(newParentDir.getAbsolutePath() + File.separator
+				+ newName);
 		boolean result = file.renameTo(newFile);
 		if (!result) {
 			logger.error("unable to rename file {}", newName);

@@ -1,24 +1,22 @@
 Ext.define('Orders.store.OrderEntries', {
 
 	extend: 'Ext.data.Store',
-	
+
 	model: 'Orders.model.OrderEntry',
-	
-	pageSize: 100,
-	
+
+	pageSize:  1000000,
+
 	proxy: {
 		type: 'ajax',
-		api:{
+		api: {
 			read: 'order/orderEntryList.do',
-			update: 'order/saveOrderEntry.do',
+			update: 'order/saveOrderEntry.do'
 		},
-		remoteSort: true,
 		reader: {
 			type: 'json',
 			root: 'orderentries',
 			successProperty: 'success'
-		},
-		simpleSortMode: true
+		}
 	}
 
 });

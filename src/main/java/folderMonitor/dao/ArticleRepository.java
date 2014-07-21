@@ -6,6 +6,8 @@ import org.springframework.stereotype.Repository;
 import folderMonitor.domain.Article;
 
 @Repository
-public interface ArticleRepository extends CrudRepository<Article, String> {
+public interface ArticleRepository extends CrudRepository<Article, Integer> {
+
+	Article findByCode(String code);
 
 }

@@ -29,7 +29,13 @@ Ext.define('Orders.view.order.List', {
 				handler : function() {
 					me.filters.clearFilters();
 				}
-			} ]
+			}, {
+				text : 'Change Priority',
+				action: 'increasePriority'
+			},{
+				text : 'Calculate Percentages',
+				action: 'calculatePercentages'
+			}  ]
 		};
 	},
 
@@ -45,36 +51,74 @@ Ext.define('Orders.view.order.List', {
 	getColumns : function() {
 		return [ {
 			header : 'Code',
-			dataIndex : 'CODE',
+			dataIndex : 'code',
 			flex : 1,
 			filterable : true
-		}, {
-			header : 'Sales Order',
-			dataIndex : 'SYSTEM_CODE',
-			flex : 1,
-			filterable : true
-		}, {
+		} ,
+		// , {
+		// 	header : 'Sales Order',
+		// 	dataIndex : 'SYSTEM_CODE',
+		// 	flex : 1,
+		// 	filterable : true
+		// }
+		{
 			header : 'Customer',
-			dataIndex : 'CUSTOMER',
+			dataIndex : 'customer',
+			flex : 1,
+			filterable : true
+		}, {
+			header : 'Customer Code',
+			dataIndex : 'customerCode',
 			flex : 1,
 			filterable : true
 		}, {
 			header : 'Total',
-			dataIndex : 'TOTAL',
+			dataIndex : 'total',
+			renderer: Ext.util.Format.usMoney,
+			//renderer: Ext.util.Format.numberRenderer('0,000.00'),
+			flex : 1,
+			filterable : true
+		 },
+		 //, {
+		// 	header : 'First Insert',
+		// 	dataIndex : 'FIRST_INSERT',
+		// 	xtype : 'datecolumn',
+		// 	format : 'Y-m-d H:i:s',
+		// 	flex : 1,
+		// 	filterable : true
+		// }, {
+		// 	header : 'Last Update',
+		// 	dataIndex : 'LAST_UPDATE',
+		// 	xtype : 'datecolumn',
+		// 	format : 'Y-m-d H:i:s',
+		// 	flex : 1,
+		// 	filterable : true
+		// }, 
+		{
+			header : '% W',
+			dataIndex : 'percAvailableWare',
+			flex : 1,
+			filterable : true,
+			renderer: Ext.util.Format.numberRenderer('0.00')
+		}, {
+			header : '% P',
+			dataIndex : 'percAvailableProd',
+			flex : 1,
+			filterable : true,
+			renderer: Ext.util.Format.numberRenderer('0.00')
+		}, {
+			header : '12',
+			dataIndex : 'twelveMonths',
 			flex : 1,
 			filterable : true
 		}, {
-			header : 'First Insert',
-			dataIndex : 'FIRST_INSERT',
-			xtype : 'datecolumn',
-			format : 'Y-m-d H:i:s',
-			flex : 1,
-			filterable : true
-		}, {
-			header : 'Last Update',
-			dataIndex : 'LAST_UPDATE',
-			xtype : 'datecolumn',
-			format : 'Y-m-d H:i:s',
+		// 	header : 'Ready',
+		// 	dataIndex : 'ready',
+		// 	flex : 1,
+		// 	filterable : true
+		// }, {
+			header : 'Priority',
+			dataIndex : 'priority',
 			flex : 1,
 			filterable : true
 		}];

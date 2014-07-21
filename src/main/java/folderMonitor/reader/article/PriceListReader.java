@@ -26,18 +26,32 @@ public class PriceListReader extends XlsxReader {
 	@Value("${pricelist.articles.id}")
 	private String idColumn;
 
-	@Value("${pricelist.articles.case_q}")
-	private String quantityColumn;
+	// @Value("${pricelist.articles.series}")
+	// private String seriesColumn;
+
+	@Value("${pricelist.articles.title}")
+	private String titleColumn;
+
+	@Value("${pricelist.articles.format}")
+	private String formatColumn;
+
+	@Value("${pricelist.articles.interior}")
+	private String interiorColumn;
+
+	// @Value("${pricelist.articles.case_q}")
+	// private String quantityColumn;
 
 	@Value("${pricelist.articles.netPrice}")
 	private String netPriceColumn;
 
-	@Value("${pricelist.articles.rrp}")
-	private String rrpColumn;
+	// @Value("${pricelist.articles.rrp}")
+	// private String rrpColumn;
 
-	protected Map<String, Article> retrieveArticles(XSSFWorkbook workbook) throws Exception {
+	protected Map<String, Article> retrieveArticles(XSSFWorkbook workbook)
+			throws Exception {
 		XSSFSheet sheet = workbook.getSheetAt(sheetPosition);
 		Iterator<Row> rowIterator = sheet.iterator();
+		rowIterator.next(); // skipping first line becase is the HEADERS
 		Map<String, Article> map = new HashMap<String, Article>();
 		Article article;
 		boolean started = false;
@@ -55,7 +69,8 @@ public class PriceListReader extends XlsxReader {
 				map.put(code, article);
 			} catch (Exception e) {
 				if (started) {
-					logger.error("error importing article " + code + " at line " + line, e);
+					logger.error("error importing article " + code
+							+ " at line " + line, e);
 				}
 			}
 
@@ -65,33 +80,19 @@ public class PriceListReader extends XlsxReader {
 
 	private void setValues(Article article, Row row) throws Exception {
 		article.setCode(getValue(row, idColumn));
-		article.setProductionQuantity(getLongValue(row, quantityColumn));
-		article.setPrice((float) row.getCell(getAlphabetPos(netPriceColumn)).getNumericCellValue());
+		// article.setSeries(getValue(row, seriesColumn));
+		article.setTitle(getValue(row, titleColumn));
+		article.setFormat(getValue(row, formatColumn));
+		article.setInterior(getValue(row, interiorColumn));
+		// article.setProductionQuantity(getLongValue(row, quantityColumn)); nn e' la prod quantity. viena da un altro file
+		float price = (float) row.getCell(getAlphabetPos(netPriceColumn))
+				.getNumericCellValue();
+		article.setPrice(price);
 
 	}
 
 	private String getValue(Row row, String column) throws Exception {
 		return row.getCell(getAlphabetPos(column)).getStringCellValue();
-	}
-
-	public void setSheetPosition(Integer sheetPosition) {
-		this.sheetPosition = sheetPosition;
-	}
-
-	public void setIdColumn(String idColumn) {
-		this.idColumn = idColumn;
-	}
-
-	public void setQuantityColumn(String quantityColumn) {
-		this.quantityColumn = quantityColumn;
-	}
-
-	public void setNetPriceColumn(String netPriceColumn) {
-		this.netPriceColumn = netPriceColumn;
-	}
-
-	public void setRrpColumn(String rrpColumn) {
-		this.rrpColumn = rrpColumn;
 	}
 
 }

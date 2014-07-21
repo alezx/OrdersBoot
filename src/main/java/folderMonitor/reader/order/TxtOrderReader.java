@@ -2,76 +2,85 @@ package folderMonitor.reader.order;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.List;
 
 import org.apache.commons.io.IOUtils;
-import org.hibernate.cfg.IndexOrUniqueKeySecondPass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import folderMonitor.dao.Dao;
+import folderMonitor.dao.ArticleRepository;
+import folderMonitor.domain.Article;
 import folderMonitor.domain.Order;
 import folderMonitor.domain.OrderEntry;
-import folderMonitor.processor.PollerThread;
 import folderMonitor.reader.Reader;
 
 @Component(value = "txtReader")
-public class TxtOrderReader extends OrderReader implements Reader {
-	
-	
+public class TxtOrderReader implements Reader {
+
+	static Logger logger = LoggerFactory.getLogger(TxtOrderReader.class);
+
 	private final static String SPLIT = "\\|";
-	
+
 	@Value("${txt.article.position}")
 	private String articlePosition;
-	
+
 	@Value("${txt.quantity.position}")
 	private String quantityPosition;
-	
 
+	@Autowired
+	protected ArticleRepository articleRepository;
 
-	OrderEntry getOrderEntry(Order o, String line, String orderCode) {
+	@Override
+	public Order read(File f) throws Exception {
 		try {
-			String[] split = line.split(SPLIT);
-			String articleCode = split[Integer.valueOf(articlePosition)];
-			long quantity = Long.valueOf(split[Integer.valueOf(quantityPosition)]);
-			
-			return orderService.getOrderEntry(o, articleCode, quantity);
-			
-		}catch(Exception e){
-			//logger.error("in getOrderEntry()", e);
-			return null;
+
+			FileInputStream fileInputStream = new FileInputStream(f);
+			List<String> lines = IOUtils.readLines(fileInputStream, "UTF-8");
+			IOUtils.closeQuietly(fileInputStream);
+
+			String orderCode = f.getName();
+			String customer = lines.get(0); // customer is in the first line
+			lines.remove(0);
+			Order o = createOrder(orderCode, customer);
+			// orderService.cleanOrderEntries(o);
+			for (String line : lines) {
+				if (line.isEmpty()) {
+					continue;
+				}
+				OrderEntry oe = createOrderEntry(o, line, orderCode);
+				if (oe != null) {
+					o.addOrderEntry(oe);
+				}
+			}
+			return o;
+		} catch (Exception e) {
+			logger.error("Could not process order " + f.getName(), e);
+			throw e;
 		}
 	}
-	
-	@Override
-	String getCustomerName(List<String> lines) {
-		return lines.get(0);
+
+	public Order createOrder(String code, String customer) {
+		Order o = new Order();
+		o.setCode(code);
+		o.setCustomer(customer);
+		// o.setFirstInsert(new Date());
+		return o;
 	}
 
-	public String getArticlePosition() {
-		return articlePosition;
+	OrderEntry createOrderEntry(Order o, String line, String orderCode)
+			throws Exception {
+		String[] split = line.split(SPLIT);
+		String articleCode = split[Integer.valueOf(articlePosition)];
+		Article article = articleRepository.findByCode((articleCode));
+		if (article == null) {
+			throw new Exception("Could not process order " + o.getCode()
+					+ " because article " + articleCode + " does not exist");
+		}
+		long quantity = Long.valueOf(split[Integer.valueOf(quantityPosition)]);
+		return new OrderEntry(article, quantity, o);
 	}
-
-	public void setArticlePosition(String articlePosition) {
-		this.articlePosition = articlePosition;
-	}
-
-	public String getQuantityPosition() {
-		return quantityPosition;
-	}
-
-	public void setQuantityPosition(String quantityPosition) {
-		this.quantityPosition = quantityPosition;
-	}
-
-
-	
 
 }

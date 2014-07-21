@@ -17,7 +17,7 @@ Ext.define('Orders.view.order.SingleOrderPanel' ,{
 		   {	
 			   xtype : 'orderEntriesList',
 			   region: 'east',
-			   width: 200,
+			   width: 300,
 			   store: Ext.create('Orders.store.OrderEntries')
 		    }
 	    ];
