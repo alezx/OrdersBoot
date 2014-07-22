@@ -80,7 +80,7 @@ public class Order implements Serializable {
 	@Column(name = "PRIORITY", unique = true)
 	private Integer priority;
 
-	@OneToMany(cascade = CascadeType.ALL, mappedBy = "order", fetch = FetchType.EAGER, orphanRemoval = true)
+	@OneToMany(cascade = CascadeType.ALL, mappedBy = "order", fetch = FetchType.LAZY, orphanRemoval = true)
 	private List<OrderEntry> orderEntryes;
 
 	@Column(name = "TWELVE_MONTHS")

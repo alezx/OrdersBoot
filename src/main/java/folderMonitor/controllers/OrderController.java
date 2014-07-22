@@ -124,7 +124,7 @@ public class OrderController {
 
 		System.out.println(map);
 
-		OrderEntry oe = dao.find(OrderEntry.class, (Integer) map.get("id"));
+		OrderEntry oe = dao.find(OrderEntry.class, map.get("id"));
 		Integer newQuantity = (Integer) map.get("newQuantity");
 
 		Order o = oe.getOrder();
@@ -182,11 +182,16 @@ public class OrderController {
 		oe.setQuantity(0);
 		oe.setNewQuantity(quantity);
 		oe.setOrder(o);
+		
 
 		article.setRequestedQuantity(article.getRequestedQuantity()
 				+ oe.getNewQuantity());
+		
+		
 		o.setTotal(o.getTotal() + article.getPrice() * oe.getNewQuantity());
-
+		if (article.getSeries()!=null && article.getSeries().contains(OrderService.DP_12)){
+			o.setTwelveMonths(true);
+		}
 		o.addOrderEntry(oe);
 
 		articleRepository.save(article);

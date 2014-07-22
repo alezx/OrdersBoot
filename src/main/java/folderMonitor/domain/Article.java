@@ -216,15 +216,16 @@ public class Article implements Serializable {
 
 	@Override
 	public String toString() {
-		return "Article [id=" + id + ", productionQuantity="
-				+ productionQuantity + ", warehouseQuantity="
-				+ warehouseQuantity + ", requestedQuantity="
-				+ requestedQuantity + ", balanceProd=" + balanceProd
-				+ ", balanceWarehouse=" + balanceWarehouse
-				+ ", balanceProdPrice=" + balanceProdPrice
-				+ ", balanceWarehousePrice=" + balanceWarehousePrice
-				+ ", price=" + price + "]";
+		return "Article [id=" + id + ", series=" + series + ", title=" + title + ", format="
+				+ format + ", interior=" + interior + ", productionQuantity=" + productionQuantity
+				+ ", warehouseQuantity=" + warehouseQuantity + ", requestedQuantity="
+				+ requestedQuantity + ", balanceProd=" + balanceProd + ", balanceWarehouse="
+				+ balanceWarehouse + ", balanceProdPrice=" + balanceProdPrice
+				+ ", balanceWarehousePrice=" + balanceWarehousePrice + ", price=" + price
+				+ ", code=" + code + "]";
 	}
+ 
+
 
 	// @Override
 	// public Map<String, Object> toMap() {

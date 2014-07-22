@@ -20,6 +20,7 @@ import org.springframework.stereotype.Component;
 import ale.HandshakeToOrders.JsonOrder;
 import ale.HandshakeToOrders.JsonOrderEntry;
 
+import com.google.common.base.Stopwatch;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -36,7 +37,7 @@ import folderMonitor.domain.OrderEntry;
 @Component(value = "orderService")
 public class OrderService {
 
-	private static final String DP_12 = "2015 DP 12";
+	public static final String DP_12 = "2015 DP 12";
 
 	static Logger logger = LoggerFactory.getLogger(OrderService.class);
 
@@ -238,13 +239,9 @@ public class OrderService {
 				OrderEntry oe = new OrderEntry();
 				Article a = articleRepository.findByCode(joe.getArticleCode());
 				// Preconditions.checkState(a != null, "Order [%s] refers to an article not present in db [%s]", o.getCode(), joe.getArticleCode());
-				if (a == null) {
-					logger.warn("article [{}] not present. creating now..",
-							joe.getArticleCode());
-					a = new Article(joe.getArticleCode(), 0l, 0l);
-					a.setPrice(0f);
-					addedArticles.add(a);
-					articleRepository.save(a);
+				a = createArticleIfNotExist(addedArticles, joe, a);
+				if (a.getSeries()!=null && a.getSeries().contains(DP_12)){
+					o.setTwelveMonths(true);
 				}
 				oe.setArticle(a);
 				oe.setOrder(o);
@@ -270,6 +267,19 @@ public class OrderService {
 		logger.info("created [{}] new articles", addedArticles.size());
 	}
 
+	private Article createArticleIfNotExist(List<Article> addedArticles, JsonOrderEntry joe,
+			Article a) {
+		if (a == null) {
+			logger.warn("article [{}] not present. creating now..",
+					joe.getArticleCode());
+			a = new Article(joe.getArticleCode(), 0l, 0l);
+			a.setPrice(0f);
+			addedArticles.add(a);
+			articleRepository.save(a);
+		}
+		return a;
+	}
+
 	private Integer getMaxPriority() {
 		try {
 			Query q = dao.getEntityManager().createQuery(
@@ -282,24 +292,41 @@ public class OrderService {
 	}
 
 	public boolean calculateBalances() {
-
+		
+		Stopwatch s = new Stopwatch();
+		s.start();
 		List<Order> orders = dao.findListBySqlQuery(Order.class,
 				"select * from orders order by priority asc", null, null);
+		
+		logger.info("select * from orders took {}", s);
+		
+		s.reset();s.start();
 		Map<String, Article> articlesMap = getArticlesMap();
+		
+		logger.info("build map took {}", s);
 
 		LoadingCache<String, List<String>> articlesOrdersList = CacheBuilder
 				.newBuilder().build(new CacheLoader<String, List<String>>() {
+					@Override
 					public List<String> load(String key) {
 						return Lists.newArrayList();
 					}
 				});
 
 		for (Order o : orders) {
+			
+			if (!o.isTwelveMonths()){
+				continue;
+			}
+			
 			float totalForOrder = 0;
 			float available = 0;
 			float availableProd = 0;
 
 			boolean twelveMonths = false;
+			
+			//Stopwatch orderStopwatch = new Stopwatch();
+			//orderStopwatch.start();
 
 			for (OrderEntry oe : o.getOrderEntryes()) {
 
@@ -353,9 +380,16 @@ public class OrderService {
 
 				a.setRequestedQuantity(requestedQuantity);
 				articleFromDb.setRequestedQuantity(requestedQuantity);
-
-				orderEntryRepository.save(oe);
-				articleRepository.save(articleFromDb);
+				
+				//s.reset();s.start();
+				
+				//orderEntryRepository.save(oe);
+				
+				//logger.info("save oe took {}", s);
+				
+				//s.reset();s.start();
+				//articleRepository.save(articleFromDb);
+				//logger.info("save article took {}", s);
 			}
 
 			float percAvailable = totalForOrder == 0 ? 100
@@ -368,9 +402,12 @@ public class OrderService {
 
 			o.setTwelveMonths(twelveMonths);
 
+			
 			orderRepository.save(o);
+			//logger.info("save o + all oe + all articles took {}", orderStopwatch);			
+			
 			logger.info("order [{}] saved", o.getCode());
-
+ 
 		}
 
 		logger.info("percentages calculated");

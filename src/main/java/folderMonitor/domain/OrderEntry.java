@@ -14,6 +14,8 @@ import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 
+import org.apache.commons.lang.StringUtils;
+
 @Entity
 @Table(name = "order_entries")
 @NamedQueries({
@@ -156,15 +158,19 @@ public class OrderEntry implements Serializable {
 	}
 
 	public void setOrdersSoFar(String ordersSoFar) {
-		this.ordersSoFar = ordersSoFar;
+		this.ordersSoFar = StringUtils.abbreviate(ordersSoFar, 255);
 	}
 
 	@Override
 	public String toString() {
-		return "OrderEntry [id=" + id + ", article=" + article.getId()
-				+ ", quantity=" + quantity + ", orderCode=" + order.getCode()
-				+ "]";
+		return "OrderEntry [id=" + id + ", article=" + article + ", quantity=" + quantity
+				+ ", newQuantity=" + newQuantity + ", order=" + order
+				+ ", residualWarehouseQuantity=" + residualWarehouseQuantity
+				+ ", residualProductionQuantity=" + residualProductionQuantity + ", ordersSoFar="
+				+ ordersSoFar + "]";
 	}
+
+
 
 	// public Map<String, Object> toMap() {
 	// Map<String, Object> map = new HashMap<String, Object>();
